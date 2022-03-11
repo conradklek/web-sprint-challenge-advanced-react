@@ -25,6 +25,9 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState("");
   function handleSubmit(e) {
     e.preventDefault();
+    if (!email.length) {
+      setMessage("Ouch: email is required");
+    }
     if (email === "foo@bar.baz") {
       return setMessage("foo@bar.baz failure #71");
     }
@@ -154,8 +157,9 @@ export default function AppFunctional(props) {
           type="email"
           placeholder="type email"
           onChange={(e) => setEmail(e.target.value)}
+          value={email}
         ></input>
-        <input id="submit" value={email} type="submit"></input>
+        <input id="submit" type="submit"></input>
       </form>
     </div>
   );
