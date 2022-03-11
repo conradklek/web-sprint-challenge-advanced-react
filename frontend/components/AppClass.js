@@ -16,7 +16,6 @@ export default class AppClass extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const url = "http://localhost:9000/api/result";
-    console.log(this.state);
     Axios.post(url, {
       email: this.state.email,
       x: this.state.x,
@@ -24,6 +23,11 @@ export default class AppClass extends React.Component {
       steps: this.state.steps,
     }).then((res) => {
       this.setState({ message: res.data.message });
+    });
+    this.setState({
+      email: "",
+      grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
+      steps: 0,
     });
   };
   getCoordinates = () => {

@@ -38,6 +38,9 @@ export default function AppFunctional(props) {
     Axios.post(url, { email, x, y, steps }).then((res) => {
       setMessage(res.data.message);
     });
+    setEmail("");
+    setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+    setSteps(0);
   }
   return (
     <div id="wrapper" className={props.className}>
