@@ -33,6 +33,8 @@ export default class AppClass extends React.Component {
             email: "",
             grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
             steps: 0,
+            x: 2,
+            y: 2,
           });
           document.getElementById("email").value = "";
         })
@@ -43,6 +45,8 @@ export default class AppClass extends React.Component {
             email: "",
             grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
             steps: 0,
+            x: 2,
+            y: 2,
           });
         });
     }

@@ -36,14 +36,17 @@ export default function AppFunctional(props) {
       .then((res) => {
         setMessage(res.data.message);
         document.getElementById("email").value = "";
+        setEmail("");
+        setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+        setSteps(0);
       })
       .catch((err) => {
         console.log(err);
         setMessage(err.message);
+        setEmail("");
+        setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+        setSteps(0);
       });
-    setEmail("");
-    setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
-    setSteps(0);
   }
   function getPos() {
     let pos = 0;
