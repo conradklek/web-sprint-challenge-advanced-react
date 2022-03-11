@@ -5,87 +5,67 @@ export default class AppClass extends React.Component {
   constructor() {
     super();
     this.state = {
-      active: [2, 2],
+      steps: 0,
       message: "",
-      count: 0,
+      grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
+      x: 2,
+      y: 2,
+      email: "",
     };
   }
-
-  setActive(grid) {
-    const cur = document.querySelector("#grid .active");
-    cur.classList.remove("active");
-    cur.innerText = "";
-    switch (grid.join("")) {
-      case "11":
-        document
-          .querySelector("#grid .square:nth-of-type(1)")
-          .classList.add("active");
-        break;
-      case "12":
-        document
-          .querySelector("#grid .square:nth-of-type(2)")
-          .classList.add("active");
-        break;
-      case "13":
-        document
-          .querySelector("#grid .square:nth-of-type(3)")
-          .classList.add("active");
-        break;
-      case "21":
-        document
-          .querySelector("#grid .square:nth-of-type(4)")
-          .classList.add("active");
-        break;
-      case "22":
-        document
-          .querySelector("#grid .square:nth-of-type(5)")
-          .classList.add("active");
-        break;
-      case "23":
-        document
-          .querySelector("#grid .square:nth-of-type(6)")
-          .classList.add("active");
-        break;
-      case "31":
-        document
-          .querySelector("#grid .square:nth-of-type(7)")
-          .classList.add("active");
-        break;
-      case "32":
-        document
-          .querySelector("#grid .square:nth-of-type(8)")
-          .classList.add("active");
-        break;
-      case "33":
-        document
-          .querySelector("#grid .square:nth-of-type(9)")
-          .classList.add("active");
-        break;
-      default:
-        break;
+  handleSubmit = (e) => {
+    e.preventDefault();
+    const url = "http://localhost:9000/api/result";
+    console.log(this.state);
+    Axios.post(url, {
+      email: this.state.email,
+      x: this.state.x,
+      y: this.state.y,
+      steps: this.state.steps,
+    }).then((res) => {
+      this.setState({ message: res.data.message });
+    });
+  };
+  getCoordinates = () => {
+    let grid = this.state.grid;
+    let pos = 0;
+    for (let i = 0; i < grid.length; i++) {
+      if (grid[i] === "B") pos = i;
     }
-    document.querySelector("#grid .active").innerText = "B";
-  }
+    if (pos === 0) return [1, 1];
+    else if (pos === 1) return [1, 2];
+    else if (pos === 2) return [1, 3];
+    else if (pos === 3) return [2, 1];
+    else if (pos === 4) return [2, 2];
+    else if (pos === 5) return [2, 3];
+    else if (pos === 6) return [3, 1];
+    else if (pos === 7) return [3, 2];
+    return [3, 3];
+  };
+  getPos = () => {
+    let pos = 0;
+    for (let i = 0; i < this.state.grid.length; i++) {
+      if (this.state.grid[i] === "B") pos = i;
+    }
+    this.setState({ message: "", steps: this.state.steps + 1 });
+    return pos;
+  };
   render() {
     const { className } = this.props;
     return (
       <div id="wrapper" className={className}>
         <div className="info">
           <h3 id="coordinates">
-            Coordinates ({this.state.active[0]}, {this.state.active[1]})
+            Coordinates ({this.state.x}, {this.state.y})
           </h3>
-          <h3 id="steps">You moved {this.state.count} times</h3>
+          <h3 id="steps">You moved {this.state.steps} times</h3>
         </div>
         <div id="grid">
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square active">B</div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div>
-          <div className="square"></div>
+          {this.state.grid.map((square, i) => (
+            <div key={i} className={`square ${square === "B" ? "active" : ""}`}>
+              {`${square === "B" ? "B" : ""}`}
+            </div>
+          ))}
         </div>
         <div className="info">
           <h3 id="message">{this.state.message}</h3>
@@ -94,21 +74,15 @@ export default class AppClass extends React.Component {
           <button
             id="left"
             onClick={() => {
-              this.setState({
-                message: "",
-              });
-              this.state.active[1] > 1
-                ? this.setState({
-                    count: this.state.count + 1,
-                  })
-                : this.setState({
-                    message: "You can't go left",
-                  });
-              this.state.active[1] =
-                this.state.active[1] > 1
-                  ? this.state.active[1] - 1
-                  : this.state.active[1];
-              this.setActive(this.state.active);
+              if (this.state.x === 1) {
+                this.setState({ message: "You can't go left" });
+              } else {
+                let pos = this.getPos();
+                let newGrid = [...this.state.grid];
+                newGrid[pos] = this.state.grid[pos - 1];
+                newGrid[pos - 1] = "B";
+                this.setState({ grid: newGrid, x: this.state.x - 1 });
+              }
             }}
           >
             LEFT
@@ -116,21 +90,15 @@ export default class AppClass extends React.Component {
           <button
             id="up"
             onClick={() => {
-              this.setState({
-                message: "",
-              });
-              this.state.active[0] > 1
-                ? this.setState({
-                    count: this.state.count + 1,
-                  })
-                : this.setState({
-                    message: "You can't go up",
-                  });
-              this.state.active[0] =
-                this.state.active[0] > 1
-                  ? this.state.active[0] - 1
-                  : this.state.active[0];
-              this.setActive(this.state.active);
+              if (this.state.y === 1) {
+                this.setState({ message: "You can't go up" });
+              } else {
+                let pos = this.getPos();
+                let newGrid = [...this.state.grid];
+                newGrid[pos] = this.state.grid[pos - 3];
+                newGrid[pos - 3] = "B";
+                this.setState({ grid: newGrid, y: this.state.y - 1 });
+              }
             }}
           >
             UP
@@ -138,21 +106,15 @@ export default class AppClass extends React.Component {
           <button
             id="right"
             onClick={() => {
-              this.setState({
-                message: "",
-              });
-              this.state.active[1] < 3
-                ? this.setState({
-                    count: this.state.count + 1,
-                  })
-                : this.setState({
-                    message: "You can't go right",
-                  });
-              this.state.active[1] =
-                this.state.active[1] < 3
-                  ? this.state.active[1] + 1
-                  : this.state.active[1];
-              this.setActive(this.state.active);
+              if (this.state.x === 3) {
+                this.setState({ message: "You can't go right" });
+              } else {
+                let pos = this.getPos();
+                let newGrid = [...this.state.grid];
+                newGrid[pos] = this.state.grid[pos + 1];
+                newGrid[pos + 1] = "B";
+                this.setState({ grid: newGrid, x: this.state.x + 1 });
+              }
             }}
           >
             RIGHT
@@ -160,21 +122,15 @@ export default class AppClass extends React.Component {
           <button
             id="down"
             onClick={() => {
-              this.setState({
-                message: "",
-              });
-              this.state.active[0] < 3
-                ? this.setState({
-                    count: this.state.count + 1,
-                  })
-                : this.setState({
-                    message: "You can't go down",
-                  });
-              this.state.active[0] =
-                this.state.active[0] < 3
-                  ? this.state.active[0] + 1
-                  : this.state.active[0];
-              this.setActive(this.state.active);
+              if (this.state.y === 3) {
+                this.setState({ message: "You can't go down" });
+              } else {
+                let pos = this.getPos();
+                let newGrid = [...this.state.grid];
+                newGrid[pos] = this.state.grid[pos + 3];
+                newGrid[pos + 3] = "B";
+                this.setState({ grid: newGrid, y: this.state.y + 1 });
+              }
             }}
           >
             DOWN
@@ -183,40 +139,22 @@ export default class AppClass extends React.Component {
             id="reset"
             onClick={() => {
               this.setState({
-                active: [2, 2],
+                grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
+                steps: 0,
                 message: "",
-                count: 0,
               });
-              document.querySelector("#grid .square.active").innerText = "";
-              document
-                .querySelector("#grid .square.active")
-                .classList.remove("active");
-              document
-                .querySelector("#grid .square:nth-of-type(5)")
-                .classList.add("active");
-              document.querySelector("#grid .square:nth-of-type(5)").innerText =
-                "B";
             }}
           >
             reset
           </button>
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const email = document.querySelector("#email").value;
-            const x = this.state.active[0];
-            const y = this.state.active[1];
-            const steps = this.state.count;
-            const url = "http://localhost:9000/api/result";
-            Axios.post(url, { email, x, y, steps }).then((res) => {
-              this.setState({
-                message: res.data.message,
-              });
-            });
-          }}
-        >
-          <input id="email" type="email" placeholder="type email"></input>
+        <form onSubmit={this.handleSubmit}>
+          <input
+            id="email"
+            type="email"
+            placeholder="type email"
+            onChange={(e) => this.setState({ email: e.target.value })}
+          ></input>
           <input id="submit" type="submit"></input>
         </form>
       </div>

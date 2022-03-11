@@ -1,96 +1,75 @@
 import React, { useState } from "react";
 import Axios from "axios";
 
-export function setActive(grid) {
-  const cur = document.querySelector("#grid .active");
-  cur.classList.remove("active");
-  cur.innerText = "";
-  switch (grid.join("")) {
-    case "11":
-      document
-        .querySelector("#grid .square:nth-of-type(1)")
-        .classList.add("active");
-      break;
-    case "12":
-      document
-        .querySelector("#grid .square:nth-of-type(2)")
-        .classList.add("active");
-      break;
-    case "13":
-      document
-        .querySelector("#grid .square:nth-of-type(3)")
-        .classList.add("active");
-      break;
-    case "21":
-      document
-        .querySelector("#grid .square:nth-of-type(4)")
-        .classList.add("active");
-      break;
-    case "22":
-      document
-        .querySelector("#grid .square:nth-of-type(5)")
-        .classList.add("active");
-      break;
-    case "23":
-      document
-        .querySelector("#grid .square:nth-of-type(6)")
-        .classList.add("active");
-      break;
-    case "31":
-      document
-        .querySelector("#grid .square:nth-of-type(7)")
-        .classList.add("active");
-      break;
-    case "32":
-      document
-        .querySelector("#grid .square:nth-of-type(8)")
-        .classList.add("active");
-      break;
-    case "33":
-      document
-        .querySelector("#grid .square:nth-of-type(9)")
-        .classList.add("active");
-      break;
-    default:
-      break;
+export function getCoordinates(grid) {
+  let pos = 0;
+  for (let i = 0; i < grid.length; i++) {
+    if (grid[i] === "B") pos = i;
   }
-  document.querySelector("#grid .active").innerText = "B";
+  if (pos === 0) return [1, 1];
+  else if (pos === 1) return [1, 2];
+  else if (pos === 2) return [1, 3];
+  else if (pos === 3) return [2, 1];
+  else if (pos === 4) return [2, 2];
+  else if (pos === 5) return [2, 3];
+  else if (pos === 6) return [3, 1];
+  else if (pos === 7) return [3, 2];
+  return [3, 3];
 }
 
 export default function AppFunctional(props) {
-  const [count, setCount] = useState(0);
-  const [grid, setGrid] = useState([2, 2]);
-  const [warn, setWarn] = useState("");
+  const [steps, setSteps] = useState(0);
+  const [message, setMessage] = useState("");
+  const [grid, setGrid] = useState([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+  const [x, y] = getCoordinates(grid);
+  const [email, setEmail] = useState("");
+  function getPos() {
+    let pos = 0;
+    for (let i = 0; i < grid.length; i++) {
+      if (grid[i] === "B") pos = i;
+    }
+    setSteps(steps + 1);
+    setMessage("");
+    return pos;
+  }
+  function handleSubmit(e) {
+    e.preventDefault();
+    const url = "http://localhost:9000/api/result";
+    Axios.post(url, { email, x, y, steps }).then((res) => {
+      setMessage(res.data.message);
+    });
+  }
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">
-          Coordinates ({grid[0]}, {grid[1]})
+          Coordinates ({x}, {y})
         </h3>
-        <h3 id="steps">You moved {count} times</h3>
+        <h3 id="steps">You moved {steps} times</h3>
       </div>
       <div id="grid">
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square active">B</div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
-        <div className="square"></div>
+        {grid.map((square, i) => (
+          <div key={i} className={`square ${square === "B" ? "active" : ""}`}>
+            {`${square === "B" ? "B" : ""}`}
+          </div>
+        ))}
       </div>
       <div className="info">
-        <h3 id="message">{warn}</h3>
+        <h3 id="message">{message}</h3>
       </div>
       <div id="keypad">
         <button
           id="left"
           onClick={() => {
-            setWarn("");
-            grid[1] > 1 ? setCount(count + 1) : setWarn("You can't go left");
-            grid[1] = grid[1] > 1 ? grid[1] - 1 : grid[1];
-            setActive(grid);
+            if (y === 1) {
+              setMessage("You can't go left");
+            } else {
+              let pos = getPos();
+              let newGrid = [...grid];
+              newGrid[pos] = grid[pos - 1];
+              newGrid[pos - 1] = "B";
+              setGrid(newGrid);
+            }
           }}
         >
           LEFT
@@ -98,10 +77,15 @@ export default function AppFunctional(props) {
         <button
           id="up"
           onClick={() => {
-            setWarn("");
-            grid[0] > 1 ? setCount(count + 1) : setWarn("You can't go up");
-            grid[0] = grid[0] > 1 ? grid[0] - 1 : grid[0];
-            setActive(grid);
+            if (x === 1) {
+              setMessage("You can't go up");
+            } else {
+              let pos = getPos();
+              let newGrid = [...grid];
+              newGrid[pos] = grid[pos - 3];
+              newGrid[pos - 3] = "B";
+              setGrid(newGrid);
+            }
           }}
         >
           UP
@@ -109,10 +93,15 @@ export default function AppFunctional(props) {
         <button
           id="right"
           onClick={() => {
-            setWarn("");
-            grid[1] < 3 ? setCount(count + 1) : setWarn("You can't go right");
-            grid[1] = grid[1] < 3 ? grid[1] + 1 : grid[1];
-            setActive(grid);
+            if (y === 3) {
+              setMessage("You can't go right");
+            } else {
+              let pos = getPos();
+              let newGrid = [...grid];
+              newGrid[pos] = grid[pos + 1];
+              newGrid[pos + 1] = "B";
+              setGrid(newGrid);
+            }
           }}
         >
           RIGHT
@@ -120,10 +109,15 @@ export default function AppFunctional(props) {
         <button
           id="down"
           onClick={() => {
-            setWarn("");
-            grid[0] < 3 ? setCount(count + 1) : setWarn("You can't go down");
-            grid[0] = grid[0] < 3 ? grid[0] + 1 : grid[0];
-            setActive(grid);
+            if (x === 3) {
+              setMessage("You can't go down");
+            } else {
+              let pos = getPos();
+              let newGrid = [...grid];
+              newGrid[pos] = grid[pos + 3];
+              newGrid[pos + 3] = "B";
+              setGrid(newGrid);
+            }
           }}
         >
           DOWN
@@ -131,37 +125,21 @@ export default function AppFunctional(props) {
         <button
           id="reset"
           onClick={() => {
-            setCount(0);
-            setGrid([2, 2]);
-            setWarn("");
-            document.querySelector("#grid .square.active").innerText = "";
-            document
-              .querySelector("#grid .square.active")
-              .classList.remove("active");
-            document
-              .querySelector("#grid .square:nth-of-type(5)")
-              .classList.add("active");
-            document.querySelector("#grid .square:nth-of-type(5)").innerText =
-              "B";
+            setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+            setSteps(0);
+            setMessage("");
           }}
         >
           reset
         </button>
       </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const email = document.querySelector("#email").value;
-          const x = grid[0];
-          const y = grid[1];
-          const steps = count;
-          const url = "http://localhost:9000/api/result";
-          Axios.post(url, { email, x, y, steps }).then((res) => {
-            setWarn(res.data.message);
-          });
-        }}
-      >
-        <input id="email" type="email" placeholder="type email"></input>
+      <form onSubmit={handleSubmit}>
+        <input
+          id="email"
+          type="email"
+          placeholder="type email"
+          onChange={(e) => setEmail(e.target.value)}
+        ></input>
         <input id="submit" type="submit"></input>
       </form>
     </div>
