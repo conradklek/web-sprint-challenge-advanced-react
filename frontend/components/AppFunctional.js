@@ -7,16 +7,27 @@ export function getCoordinates(grid) {
     if (grid[i] === "B") pos = i;
   }
   if (pos === 0) return [1, 1];
-  else if (pos === 1) return [1, 2];
-  else if (pos === 2) return [1, 3];
-  else if (pos === 3) return [2, 1];
+  else if (pos === 1) return [2, 1];
+  else if (pos === 2) return [3, 1];
+  else if (pos === 3) return [1, 2];
   else if (pos === 4) return [2, 2];
-  else if (pos === 5) return [2, 3];
-  else if (pos === 6) return [3, 1];
-  else if (pos === 7) return [3, 2];
+  else if (pos === 5) return [3, 2];
+  else if (pos === 6) return [1, 3];
+  else if (pos === 7) return [2, 3];
   return [3, 3];
 }
 
+export function handleSubmit(e) {
+  e.preventDefault();
+  const url = "http://localhost:9000/api/result";
+  Axios.post(url, { email, x, y, steps }).then((res) => {
+    setMessage(res.data.message);
+  });
+  setEmail("");
+  setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+  setSteps(0);
+  document.getElementById("email").value = "";
+}
 export default function AppFunctional(props) {
   const [steps, setSteps] = useState(0);
   const [message, setMessage] = useState("");
@@ -31,16 +42,6 @@ export default function AppFunctional(props) {
     setSteps(steps + 1);
     setMessage("");
     return pos;
-  }
-  function handleSubmit(e) {
-    e.preventDefault();
-    const url = "http://localhost:9000/api/result";
-    Axios.post(url, { email, x, y, steps }).then((res) => {
-      setMessage(res.data.message);
-    });
-    setEmail("");
-    setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
-    setSteps(0);
   }
   return (
     <div id="wrapper" className={props.className}>
@@ -64,7 +65,7 @@ export default function AppFunctional(props) {
         <button
           id="left"
           onClick={() => {
-            if (y === 1) {
+            if (x === 1) {
               setMessage("You can't go left");
             } else {
               let pos = getPos();
@@ -80,7 +81,7 @@ export default function AppFunctional(props) {
         <button
           id="up"
           onClick={() => {
-            if (x === 1) {
+            if (y === 1) {
               setMessage("You can't go up");
             } else {
               let pos = getPos();
@@ -96,7 +97,7 @@ export default function AppFunctional(props) {
         <button
           id="right"
           onClick={() => {
-            if (y === 3) {
+            if (x === 3) {
               setMessage("You can't go right");
             } else {
               let pos = getPos();
@@ -112,7 +113,7 @@ export default function AppFunctional(props) {
         <button
           id="down"
           onClick={() => {
-            if (x === 3) {
+            if (y === 3) {
               setMessage("You can't go down");
             } else {
               let pos = getPos();
