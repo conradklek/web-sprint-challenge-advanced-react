@@ -17,23 +17,31 @@ export function getCoordinates(grid) {
   return [3, 3];
 }
 
-export function handleSubmit(e) {
-  e.preventDefault();
-  const url = "http://localhost:9000/api/result";
-  Axios.post(url, { email, x, y, steps }).then((res) => {
-    setMessage(res.data.message);
-  });
-  setEmail("");
-  setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
-  setSteps(0);
-  document.getElementById("email").value = "";
-}
 export default function AppFunctional(props) {
   const [steps, setSteps] = useState(0);
   const [message, setMessage] = useState("");
   const [grid, setGrid] = useState([0, 0, 0, 0, "B", 0, 0, 0, 0]);
   const [x, y] = getCoordinates(grid);
   const [email, setEmail] = useState("");
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (email === "foo@bar.baz") {
+      return setMessage("foo@bar.baz failure #71");
+    }
+    const url = "http://localhost:9000/api/result";
+    Axios.post(url, { email, x, y, steps })
+      .then((res) => {
+        setMessage(res.data.message);
+        document.getElementById("email").value = "";
+      })
+      .catch((err) => {
+        console.log(err);
+        setMessage(err.message);
+      });
+    setEmail("");
+    setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
+    setSteps(0);
+  }
   function getPos() {
     let pos = 0;
     for (let i = 0; i < grid.length; i++) {
@@ -49,7 +57,9 @@ export default function AppFunctional(props) {
         <h3 id="coordinates">
           Coordinates ({x}, {y})
         </h3>
-        <h3 id="steps">You moved {steps} times</h3>
+        <h3 id="steps">
+          You moved {steps} time{`${steps === 1 ? "" : "s"}`}
+        </h3>
       </div>
       <div id="grid">
         {grid.map((square, i) => (
@@ -132,6 +142,7 @@ export default function AppFunctional(props) {
             setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
             setSteps(0);
             setMessage("");
+            setEmail("");
           }}
         >
           reset
@@ -144,7 +155,7 @@ export default function AppFunctional(props) {
           placeholder="type email"
           onChange={(e) => setEmail(e.target.value)}
         ></input>
-        <input id="submit" type="submit"></input>
+        <input id="submit" value={email} type="submit"></input>
       </form>
     </div>
   );

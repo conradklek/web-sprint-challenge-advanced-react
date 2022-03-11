@@ -15,21 +15,37 @@ export default class AppClass extends React.Component {
   }
   handleSubmit = (e) => {
     e.preventDefault();
-    const url = "http://localhost:9000/api/result";
-    Axios.post(url, {
-      email: this.state.email,
-      x: this.state.x,
-      y: this.state.y,
-      steps: this.state.steps,
-    }).then((res) => {
-      this.setState({ message: res.data.message });
-    });
-    this.setState({
-      email: "",
-      grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
-      steps: 0,
-    });
-    document.getElementById("email").value = "";
+    if (!this.state.email.length) {
+      this.setState({ message: "Ouch: email is required" });
+    } else if (email === "foo@bar.baz") {
+      return setMessage("foo@bar.baz failure #71");
+    } else {
+      const url = "http://localhost:9000/api/result";
+      Axios.post(url, {
+        email: this.state.email,
+        x: this.state.x,
+        y: this.state.y,
+        steps: this.state.steps,
+      })
+        .then((res) => {
+          this.setState({
+            message: res.data.message,
+            email: "",
+            grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
+            steps: 0,
+          });
+          document.getElementById("email").value = "";
+        })
+        .catch((err) => {
+          console.log(err);
+          this.setState({
+            message: err.message,
+            email: "",
+            grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
+            steps: 0,
+          });
+        });
+    }
   };
   getCoordinates = () => {
     let grid = this.state.grid;
@@ -63,7 +79,10 @@ export default class AppClass extends React.Component {
           <h3 id="coordinates">
             Coordinates ({this.state.x}, {this.state.y})
           </h3>
-          <h3 id="steps">You moved {this.state.steps} times</h3>
+          <h3 id="steps">
+            You moved {this.state.steps} time
+            {`${this.state.steps === 1 ? "" : "s"}`}
+          </h3>
         </div>
         <div id="grid">
           {this.state.grid.map((square, i) => (
@@ -160,6 +179,7 @@ export default class AppClass extends React.Component {
             id="email"
             type="email"
             placeholder="type email"
+            value={this.state.email}
             onChange={(e) => this.setState({ email: e.target.value })}
           ></input>
           <input id="submit" type="submit"></input>
