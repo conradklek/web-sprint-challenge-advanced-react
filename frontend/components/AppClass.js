@@ -146,6 +146,8 @@ export default class AppClass extends React.Component {
                 grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
                 steps: 0,
                 message: "",
+                x: 2,
+                y: 2,
               });
             }}
           >
