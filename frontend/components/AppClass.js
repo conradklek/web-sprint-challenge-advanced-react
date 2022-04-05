@@ -16,9 +16,9 @@ export default class AppClass extends React.Component {
   handleSubmit = (e) => {
     e.preventDefault();
     if (!this.state.email.length) {
-      this.setState({ message: "Ouch: email is required" });
+      return this.setState({ message: "Ouch: email is required" });
     } else if (this.state.email.split('.').length !== 2) {
-      this.setState({ message: "Ouch: email must be a valid email" });
+      return this.setState({ message: "Ouch: email must be a valid email" });
     } else if (this.state.email === "foo@bar.baz") {
       return this.setState({
         message: "foo@bar.baz failure #71",
@@ -28,7 +28,6 @@ export default class AppClass extends React.Component {
         y: 2,
         email: ""
       });
-        
     } else {
       const url = "http://localhost:9000/api/result";
       Axios.post(url, {
@@ -40,11 +39,6 @@ export default class AppClass extends React.Component {
         .then((res) => {
           this.setState({
             message: res.data.message,
-            email: "",
-            grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
-            steps: 0,
-            x: 2,
-            y: 2,
           });
           document.getElementById("email").value = "";
         })

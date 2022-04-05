@@ -45,8 +45,6 @@ export default function AppFunctional(props) {
       .then((res) => {
         setMessage(res.data.message);
         setEmail("");
-        setGrid([0, 0, 0, 0, "B", 0, 0, 0, 0]);
-        setSteps(0);
       })
       .catch((err) => {
         setMessage(err.message);
