@@ -172,6 +172,7 @@ export default class AppClass extends React.Component {
                 message: "",
                 x: 2,
                 y: 2,
+                email: ""
               });
             }}
           >
