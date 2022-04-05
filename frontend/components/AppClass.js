@@ -17,8 +17,16 @@ export default class AppClass extends React.Component {
     e.preventDefault();
     if (!this.state.email.length) {
       this.setState({ message: "Ouch: email is required" });
-    } else if (email === "foo@bar.baz") {
-      return setMessage("foo@bar.baz failure #71");
+    } else if (this.state.email === "foo@bar.baz") {
+      return this.setState({
+        message: "foo@bar.baz failure #71",
+        grid: [0, 0, 0, 0, "B", 0, 0, 0, 0],
+        steps: 0,
+        x: 2,
+        y: 2,
+        email: ""
+      });
+        
     } else {
       const url = "http://localhost:9000/api/result";
       Axios.post(url, {
